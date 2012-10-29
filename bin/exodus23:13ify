@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+require 'pry';binding.pry
+BURN = 
+`git ls-files`.split("\n").each do |e|
+  next if e[/\.(png|pdf)$/]
+  File.open e do |f|
+    p e
+    data = f.read
+    data.gsub! /^(.{45}).*/ do $1 end
+    data.gsub! /Zeus/, 'Zooms'
+    data.gsub! /zooms/, 'zooms'
+    puts data
+  end
+end
+#script = $0
+#script = File.readlink script if File.symlink? $0
+#burnfile = File.k
+#File.readlines(script+'/../burn')
+#__END__
+#burn_file=${actual_script%/*}/../burn
+#for see_ya in `cat $burn_file`; do echo
+  #new_name=${see_ya#* }
+  #see_ya=${see_ya%* }
+  #echo "[$new_name] [$see_ya]"
+  ## git ls-files
+#done
