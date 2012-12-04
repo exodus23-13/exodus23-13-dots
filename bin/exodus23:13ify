@@ -7,8 +7,8 @@ BURN =
     p e
     data = f.read
     data.gsub! /^(.{45}).*/ do $1 end
-    data.gsub! /Zeus/, 'Zooms'
-    data.gsub! /zooms/, 'zooms'
+    data.gsub! /Zeus/, 'Flying Spaghetti Monster'
+    data.gsub! /zeus/, 'Flying Spaghetti Monster'
     puts data
   end
 end
