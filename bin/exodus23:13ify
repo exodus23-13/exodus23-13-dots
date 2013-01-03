@@ -1,26 +1,51 @@
 #!/usr/bin/env ruby
-require 'pry';binding.pry
-BURN = 
-`git ls-files`.split("\n").each do |e|
-  next if e[/\.(png|pdf)$/]
-  File.open e do |f|
-    p e
-    data = f.read
-    data.gsub! /^(.{45}).*/ do $1 end
-    data.gsub! /Zeus/, 'Zooms'
-    data.gsub! /zooms/, 'zooms'
-    puts data
+
+if ARGV.find{|e| e[/^g/i]}
+  [
+    %w(git reset --hard upstream/master),
+    %w(git clean -df),
+  ].each do |cmd|
+    warn cmd.join ' '
+    system *cmd
   end
 end
-#script = $0
-#script = File.readlink script if File.symlink? $0
-#burnfile = File.k
-#File.readlines(script+'/../burn')
-#__END__
-#burn_file=${actual_script%/*}/../burn
-#for see_ya in `cat $burn_file`; do echo
-  #new_name=${see_ya#* }
-  #see_ya=${see_ya%* }
-  #echo "[$new_name] [$see_ya]"
-  ## git ls-files
-#done
+
+BURN_PATH = File.dirname(File.readlink $0) + '/../burn'
+burn = Hash[File.readlines(BURN_PATH).map &:split]
+variants = {}
+burn.map do |k,v|
+  variants[k.capitalize] = v.capitalize
+  variants[k.upcase] = v.upcase
+end
+burn.merge! variants
+
+# Overly simplistic: just skips all dot-dirs:
+def all_except_git
+  Dir['**/*'].sort_by &:size
+end
+
+require 'fileutils'
+all_except_git.each do |e|
+  burn.each do |before, after|
+    current_name = e
+    while current_name[before]
+      new_path = current_name.sub before, after
+      warn "Rename to #{new_path}" if ENV['debug']
+      FileUtils.move current_name, new_path if File.exists? current_name
+      current_name = new_path
+    end
+  end
+end
+
+all_except_git.each do |e|
+  next if e[/\.(png|pdf)$/] or Dir.exists? e
+  File.open e, 'r+b' do |f|
+    data = f.read
+    p e
+    burn.each do |before, after|
+      data.gsub! before, after
+    end
+    f.seek 0
+    f.puts data
+  end
+end

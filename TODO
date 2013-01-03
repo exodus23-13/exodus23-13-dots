@@ -1,0 +1,3 @@
+: git reset --hard
+or
+: git reset --merge 234adb3
